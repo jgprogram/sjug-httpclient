@@ -1,0 +1,12 @@
+{
+  "name": "httpclient-backend",
+  "version": "0.0.1",
+  "description": "SJUG 2018 - JEP321: HTTP Client (standard)",
+  "main": "server.js",
+  "scripts": {},
+  "author": "Jacek Gzel",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.16.4"
+  }
+}
