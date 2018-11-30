@@ -7,6 +7,9 @@
   "author": "Jacek Gzel",
   "license": "ISC",
   "dependencies": {
-    "express": "^4.16.4"
+    "basic-auth": "^2.0.1",
+    "body-parser": "^1.18.3",
+    "express": "^4.16.4",
+    "ws": "^6.1.2"
   }
 }
