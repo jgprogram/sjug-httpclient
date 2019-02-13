@@ -21,6 +21,8 @@ public class AsyncJson222 {
     private static final String CONTENT_TYPE = "Content-type";
     private static final String APPLICATION_JSON = "application/json";
     private static final String IBAN = "PL04104022223333444455556666";
+    private static final BigDecimal BALANCE = BigDecimal.valueOf(522.41);
+    private static final String CURRENCY = "PLN";
     private static final int STATUS_OK = 200;
     private final BankAccountDetailsJSONMapper bankAccountDetailsJSONMapper = new BankAccountDetailsJSONMapper();
 
@@ -32,19 +34,11 @@ public class AsyncJson222 {
         var httpRequest = HttpRequest.newBuilder()
                 .uri(URI.create(BANK_ACCOUNT_DETAILS_URI + "/" + IBAN))
                 .GET()
-                .setHeader(CONTENT_TYPE, APPLICATION_JSON)
                 .build();
 
         // when
-        var bankAccountDetails = httpClient.sendAsync(httpRequest, HttpResponse.BodyHandlers.ofString())
-                .thenApply(HttpResponse::body)
-                .thenApply(bankAccountDetailsJSONMapper::map)
-                .get(5, TimeUnit.SECONDS);
 
         // then
-        assertThat(bankAccountDetails.getIban(), is(IBAN));
-        assertThat(bankAccountDetails.getBalance(), is(BigDecimal.valueOf(522.41)));
-        assertThat(bankAccountDetails.getCurrency(), is("PLN"));
     }
 
     private HttpClient preconfiguredHttpClient() {
