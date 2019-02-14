@@ -34,7 +34,6 @@ public class AsyncJson222 {
         var httpRequest = HttpRequest.newBuilder()
                 .uri(URI.create(BANK_ACCOUNT_DETAILS_URI + "/" + IBAN))
                 .GET()
-                .header(CONTENT_TYPE, APPLICATION_JSON)
                 .build();
 
         // when
