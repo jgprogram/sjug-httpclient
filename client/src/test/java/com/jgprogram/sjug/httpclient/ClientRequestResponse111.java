@@ -18,7 +18,7 @@ public class ClientRequestResponse111 {
 
     private static final String HTTP_BASE_URL = "http://localhost:3080/api/account-details";
     private static final String IBAN = "PL04104022223333444455556666";
-    private static final String BANK_ACCOUNT_DETAILS_URI = HTTP_BASE_URL + IBAN;
+    private static final String BANK_ACCOUNT_DETAILS_URI = HTTP_BASE_URL + "/" + IBAN;
     private static final String CONTENT_TYPE = "Content-type";
     private static final String APPLICATION_JSON = "application/json";
 
@@ -32,8 +32,6 @@ public class ClientRequestResponse111 {
 
         // when
 
-
         // then
-
     }
 }
