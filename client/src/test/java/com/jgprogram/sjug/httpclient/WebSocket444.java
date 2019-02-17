@@ -3,25 +3,30 @@ package com.jgprogram.sjug.httpclient;
 import org.junit.After;
 import org.junit.Test;
 
+import java.math.BigDecimal;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.WebSocket;
 import java.time.Duration;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.*;
 
 public class WebSocket444 {
 
     private static final String WS_BASE_URL = "ws://localhost:3446";
-    private static final String EXPECTED_MSG = "Hi from WS server!";
-    private String messageFromWS;
+    private final ExchangeRatesUpdateJSONMapper jsonMapper = new ExchangeRatesUpdateJSONMapper();
+    //private ExchangeRatesUpdate exchangeRatesUpdate;
+    private String exchangeRatesUpdate;
+    private boolean messageSent = false;
 
     @After
     public void cleanup() {
-        messageFromWS = null;
+        exchangeRatesUpdate = null;
+        messageSent = false;
     }
 
     @Test
@@ -32,38 +37,59 @@ public class WebSocket444 {
                 .connectTimeout(Duration.ofMinutes(1))
                 .buildAsync(
                         URI.create(WS_BASE_URL),
-                        new WebSocket.Listener() {
-                            CompletableFuture allPartReceived = new CompletableFuture();
-
-                            StringBuilder strBuilder = new StringBuilder();
-
-                            @Override
-                            public CompletionStage<?> onText(WebSocket webSocket,
-                                                             CharSequence data,
-                                                             boolean last) {
-                                strBuilder.append(data);
-                                webSocket.request(1);
-
-                                if (last) {
-                                    messageFromWS = strBuilder.toString();
-
-                                    strBuilder = new StringBuilder();
-                                    allPartReceived.complete(messageFromWS);
-                                    var completedStage = allPartReceived;
-                                    allPartReceived = new CompletableFuture();
-
-                                    return completedStage;
-                                }
-
-                                return allPartReceived;
-                            }
-                        })
-                .thenAccept(ws -> ws.sendText("Hi from client", true));
+                        webSocketListener())
+                .thenAccept(this::onWebSocketReady);
 
         pauseSeconds(1);
 
-        // then the server responds "Hi from server"
-        assertThat(messageFromWS, is(EXPECTED_MSG));
+        // then
+        assertTrue(messageSent);
+        // and
+        assertNotNull(exchangeRatesUpdate);
+//        var rates = exchangeRatesUpdate.rates();
+//        assertThat(rates.size(), is(2));
+//        assertTrue(rates.containsAll(Set.of(
+//                rateOf("EUR", 4.3243),
+//                rateOf("USD", 3.8326))));
+    }
+
+    private ExchangeRatesUpdate.Rate rateOf(String eur, double v) {
+        return ExchangeRatesUpdate.Rate.of("EUR", BigDecimal.valueOf(v));
+    }
+
+    private void onWebSocketReady(WebSocket webSocket) {
+        webSocket.sendText("PLN", true);
+        messageSent = true;
+    }
+
+    private WebSocket.Listener webSocketListener() {
+        return new WebSocket.Listener() {
+
+            CompletableFuture allPartReceived = new CompletableFuture();
+            StringBuilder strBuilder = new StringBuilder();
+
+            @Override
+            public CompletionStage<?> onText(WebSocket webSocket,
+                                             CharSequence data,
+                                             boolean last) {
+                strBuilder.append(data);
+                webSocket.request(1);
+
+                if (last) {
+                    //exchangeRatesUpdate = jsonMapper.map(strBuilder.toString());
+                    exchangeRatesUpdate = strBuilder.toString();
+                    allPartReceived.complete(exchangeRatesUpdate);
+
+                    var completedStage = allPartReceived;
+                    allPartReceived = new CompletableFuture();
+                    strBuilder = new StringBuilder();
+
+                    return completedStage;
+                }
+
+                return allPartReceived;
+            }
+        };
     }
 
     private void pauseSeconds(int seconds) {

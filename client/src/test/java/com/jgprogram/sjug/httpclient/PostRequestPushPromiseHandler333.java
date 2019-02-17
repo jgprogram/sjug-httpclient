@@ -30,7 +30,7 @@ public class PostRequestPushPromiseHandler333 {
     private BankAccountDetails bankAccountDetails;
 
     @After
-    public void cleanUp() {
+    public void cleanup() {
         transferConfirmationPdfHttpResponse = null;
         bankAccountDetails = null;
     }
@@ -54,12 +54,8 @@ public class PostRequestPushPromiseHandler333 {
         httpClient.sendAsync(
                 httpRequest,
                 HttpResponse.BodyHandlers.ofByteArray(),
-                (initiatingRequest, pushPromiseRequest, acceptor) ->
-                        acceptor.apply(HttpResponse.BodyHandlers.ofByteArray())
-                                .thenApply(HttpResponse::body)
-                                .thenApply(bankAccountDetailsJSONMapper::map)
-                                .thenAccept(accountDetails -> bankAccountDetails = accountDetails))
-                .thenAccept(httpResponse1 -> transferConfirmationPdfHttpResponse = httpResponse1);
+                handlePushPromise())
+                .thenAccept(httpResponse -> transferConfirmationPdfHttpResponse = httpResponse);
 
         pauseSeconds(1);
 
@@ -70,6 +66,14 @@ public class PostRequestPushPromiseHandler333 {
         assertThat(bankAccountDetails.getIban(), is("PL04104022223333444455556666"));
         assertThat(bankAccountDetails.getBalance(), is(BigDecimal.valueOf(0)));
         assertThat(bankAccountDetails.getCurrency(), is("PLN"));
+    }
+
+    private HttpResponse.PushPromiseHandler<byte[]> handlePushPromise() {
+        return (initiatingRequest, pushPromiseRequest, acceptor) ->
+                acceptor.apply(HttpResponse.BodyHandlers.ofByteArray())
+                        .thenApply(HttpResponse::body)
+                        .thenApply(bankAccountDetailsJSONMapper::map)
+                        .thenAccept(accountDetails -> bankAccountDetails = accountDetails);
     }
 
     private void pauseSeconds(int seconds) {

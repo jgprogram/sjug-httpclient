@@ -29,6 +29,14 @@ const accountDetails0 = {
     currency: 'PLN'
 }
 
+const exchangeRatesUpdate = {
+    time: "2019-02-20 12:54:34",
+    rates: [
+        { currency: "EUR", value: 4.3243 },
+        { currency: "USD", value: 3.8326 }
+    ]
+}
+
 const moneyTransferConfirmation = fs.readFileSync('./assets/money-transfer-confirm.pdf')
 
 app.use(auth)
@@ -107,10 +115,10 @@ wsServer.on('connection', ws => {
         console.log(`Message from client => ${msg}`)
     })
 
-    var counter = 0;
+    // var counter = 0;
 
     // setInterval(() => {
-        ws.send("Hi from WS server!")
+        ws.send(JSON.stringify(exchangeRatesUpdate))
     //     ws.send(` ${ ++counter }. XXXX
     //     Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam ut nisl a leo posuere maximus sed non nunc. Ut nec consequat sapien. Proin dignissim enim odio, at placerat magna finibus vel. Suspendisse tincidunt nulla consequat leo efficitur condimentum. Donec vestibulum euismod ligula nec posuere. Interdum et malesuada fames ac ante ipsum primis in faucibus. Mauris dui nibh, tempus ac rutrum sed, interdum vitae nisi. Aliquam at pharetra est. Curabitur sit amet iaculis ex, tempor pulvinar urna. Sed volutpat fringilla tellus quis dictum. Aliquam vestibulum nec lectus sed consequat. Nam placerat nulla in purus maximus sagittis. Curabitur pulvinar neque euismod leo vulputate semper sed in nibh. Cras velit sem, molestie ac accumsan a, volutpat eget nulla. Sed dignissim, ipsum quis auctor commodo, lorem magna mattis ante, iaculis tincidunt diam ipsum non erat.
         
