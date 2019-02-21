@@ -19,8 +19,7 @@ public class WebSocket444 {
 
     private static final String WS_BASE_URL = "ws://localhost:3446";
     private final ExchangeRatesUpdateJSONMapper jsonMapper = new ExchangeRatesUpdateJSONMapper();
-    //private ExchangeRatesUpdate exchangeRatesUpdate;
-    private String exchangeRatesUpdate;
+    private ExchangeRatesUpdate exchangeRatesUpdate;
     private boolean messageSent = false;
 
     @After
@@ -31,7 +30,7 @@ public class WebSocket444 {
 
     @Test
     public void shouldSendAndReceiveMessageFromWebSocket() {
-        // when send message to the server
+        // when
         HttpClient.newHttpClient()
                 .newWebSocketBuilder()
                 .connectTimeout(Duration.ofMinutes(1))
@@ -45,12 +44,11 @@ public class WebSocket444 {
         // then
         assertTrue(messageSent);
         // and
-        assertNotNull(exchangeRatesUpdate);
-//        var rates = exchangeRatesUpdate.rates();
-//        assertThat(rates.size(), is(2));
-//        assertTrue(rates.containsAll(Set.of(
-//                rateOf("EUR", 4.3243),
-//                rateOf("USD", 3.8326))));
+        var rates = exchangeRatesUpdate.rates();
+        assertThat(rates.size(), is(2));
+        assertTrue(rates.containsAll(Set.of(
+                rateOf("EUR", 4.3243),
+                rateOf("USD", 3.8326))));
     }
 
     private ExchangeRatesUpdate.Rate rateOf(String eur, double v) {
@@ -76,18 +74,20 @@ public class WebSocket444 {
                 webSocket.request(1);
 
                 if (last) {
-                    //exchangeRatesUpdate = jsonMapper.map(strBuilder.toString());
-                    exchangeRatesUpdate = strBuilder.toString();
+                    exchangeRatesUpdate = jsonMapper.map(strBuilder.toString());
                     allPartReceived.complete(exchangeRatesUpdate);
-
                     var completedStage = allPartReceived;
-                    allPartReceived = new CompletableFuture();
-                    strBuilder = new StringBuilder();
+                    cleanup();
 
                     return completedStage;
                 }
 
                 return allPartReceived;
+            }
+
+            private void cleanup() {
+                allPartReceived = new CompletableFuture();
+                strBuilder = new StringBuilder();
             }
         };
     }

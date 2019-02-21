@@ -51,10 +51,7 @@ public class PostRequestPushPromiseHandler333 {
                 .build();
 
         // when
-        httpClient.sendAsync(
-                httpRequest,
-                HttpResponse.BodyHandlers.ofByteArray(),
-                handlePushPromise())
+        httpClient.sendAsync(httpRequest, HttpResponse.BodyHandlers.ofByteArray(), handlePushPromise())
                 .thenAccept(httpResponse -> transferConfirmationPdfHttpResponse = httpResponse);
 
         pauseSeconds(1);
